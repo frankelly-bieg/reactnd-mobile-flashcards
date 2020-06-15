@@ -15,6 +15,8 @@ import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
 
 const Stack = createStackNavigator();
+
+// From: https://reactnavigation.org/docs/stack-navigator/#animations
 const config = {
   animation: 'spring',
   config: {
