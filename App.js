@@ -15,6 +15,22 @@ import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
 
 const Stack = createStackNavigator();
+const config = {
+  animation: 'spring',
+  config: {
+    stiffness: 1000,
+    damping: 500,
+    mass: 3,
+    overshootClamping: true,
+    restDisplacementThreshold: 0.01,
+    restSpeedThreshold: 0.01,
+  },
+};
+
+const transitionSpec = {
+  open: config,
+  close: config,
+};
 
 export default function App(props) {
   const isLoadingComplete = useCachedResources();
@@ -32,18 +48,38 @@ export default function App(props) {
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Root">
             <Stack.Screen name="Root" component={HomeTabNavigator} />
-            <Stack.Screen name="Deck" options={{ title: 'My deck' }} component={DeckScreen} />
+            <Stack.Screen
+              name="Deck"
+              options={{
+                title: 'My deck',
+                transitionSpec,
+              }}
+              component={DeckScreen}
+            />
             <Stack.Screen
               name="CreateDeck"
-              options={{ title: 'Create a new deck' }}
+              options={{
+                title: 'Create a new deck',
+                transitionSpec,
+              }}
               component={CreateDeckScreen}
             />
             <Stack.Screen
               name="CreateCard"
-              options={{ title: 'Create a new card' }}
+              options={{
+                title: 'Create a new card',
+                transitionSpec,
+              }}
               component={CreateCardScreen}
             />
-            <Stack.Screen name="Quiz" options={{ title: 'Quiz' }} component={QuizScreen} />
+            <Stack.Screen
+              name="Quiz"
+              options={{
+                title: 'Quiz',
+                transitionSpec,
+              }}
+              component={QuizScreen}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </View>
