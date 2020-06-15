@@ -1,36 +1,63 @@
 import * as React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Switch, TextInput } from 'react-native';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
+import { ErrorText } from '../components/StyledText';
+import Store from '../constants/Store';
 
 export default function CreateCard({ navigation, route }) {
-  const [question, onQuestionChangeText] = React.useState('Useless Placeholder');
-  const [isEnabled, setIsEnabled] = React.useState(false);
-  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+  const deckID = route.params?.deckID;
 
+  const [question, onQuestionChangeText] = React.useState('');
+  const [answer, onAnswerChangeText] = React.useState('');
+
+  const [questionError, setQuestionError] = React.useState('');
+  const [answerError, setAnswerError] = React.useState('');
+
+  const onSubmit = () => {
+    if (!question) {
+      setQuestionError('This field is required');
+      return;
+    }
+    setQuestionError('');
+
+    if (!answer) {
+      setAnswerError('This field is required');
+      return;
+    }
+    setAnswerError('');
+
+    Store.get('deckList').then((decks) => {
+      const storedDesks = decks || {};
+
+      Store.update('deckList', {
+        [deckID]: {
+          questions: [...storedDesks[deckID].questions, { question, answer }],
+        },
+      }).then(() => {
+        navigation.navigate('Root');
+      });
+    });
+  };
   return (
     <View style={styles.container}>
-      <View>
-        <Text>Question:</Text>
+      <View style={styles.contentContainer}>
+        <Text style={styles.inputTitle}>Question:</Text>
         <TextInput
-          style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+          style={styles.inputClass}
           onChangeText={(text) => onQuestionChangeText(text)}
-          maxLength={30}
           value={question}
         />
-        <View style={{ flexDirection: 'row' }}>
-          <Text>Answer: </Text>
-          <Text style={{ fontWeight: 'bold' }}>{isEnabled ? 'Correct' : 'Incorrect'}</Text>
-        </View>
-        <Switch
-          trackColor={{ false: '#767577', true: '#81b0ff' }}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={toggleSwitch}
-          value={isEnabled}
+        {Boolean(questionError) && <ErrorText>{questionError}</ErrorText>}
+        <Text style={styles.inputTitle}>Answer:</Text>
+        <TextInput
+          style={styles.inputClass}
+          onChangeText={(text) => onAnswerChangeText(text)}
+          value={answer}
         />
+        {Boolean(answerError) && <ErrorText>{answerError}</ErrorText>}
       </View>
       <View style={styles.tabBarInfoContainer}>
         <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={onSubmit}>
             <Text style={[styles.buttonText, styles.buttonBiggerText]}>Submit</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -49,6 +76,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fafafa',
+  },
+  inputTitle: {
+    fontSize: 18,
+    marginTop: 20,
+    marginBottom: 10,
+    fontWeight: 'bold',
+  },
+  inputClass: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+  },
+  contentContainer: {
+    paddingHorizontal: 15,
+    paddingTop: 20,
   },
   buttonBiggerText: {
     fontSize: 18,

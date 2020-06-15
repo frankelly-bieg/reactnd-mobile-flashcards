@@ -6,6 +6,7 @@ const { height } = Dimensions.get('screen');
 
 export default function Deck({ navigation, route }) {
   const title = route.params?.title;
+  const deckID = route.params?.id;
   const cardsAmount = route.params?.questions?.length || 0;
 
   const onDelete = () => {
@@ -39,7 +40,9 @@ export default function Deck({ navigation, route }) {
     <View style={styles.container}>
       <View style={styles.deckContainer}>
         <Text style={styles.deckTitle}>{title}</Text>
-        <Text style={styles.deckCards}>{cardsAmount} cards</Text>
+        <Text style={styles.deckCards}>
+          {cardsAmount} {cardsAmount === 1 ? 'card' : 'cards'}
+        </Text>
         <TouchableOpacity style={[styles.actionButton, styles.deleteButton]} onPress={onDelete}>
           <Text style={[styles.buttonText, styles.deleteButtonText]}>Delete deck</Text>
         </TouchableOpacity>
@@ -48,7 +51,7 @@ export default function Deck({ navigation, route }) {
         <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
           <TouchableOpacity
             style={[styles.actionButton, styles.buttonLight]}
-            onPress={() => navigation.navigate('CreateCard')}
+            onPress={() => navigation.navigate('CreateCard', { deckID })}
           >
             <Text style={[styles.buttonText, styles.buttonLightText]}>Add card</Text>
           </TouchableOpacity>
