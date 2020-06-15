@@ -81,6 +81,6 @@ function scheduleDailyNotification() {
         sound: true,
       },
     },
-    { time: nextDay, repeat: 'day' }
+    { time: nextDay }
   );
 }
