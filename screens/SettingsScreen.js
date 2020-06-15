@@ -1,17 +1,53 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Alert } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import Store from '../constants/Store';
 
-export default function LinksScreen() {
+export default function LinksScreen({ navigation }) {
+  const onDelete = () => {
+    Store.get('deckList').then((decks) => {
+      const deckList = Object.values(decks);
+      const cardsAmount = deckList.reduce((acc, current) => acc + current.questions.length, 0);
+
+      if (deckList.length === 0) {
+        Alert.alert(
+          "You haven't created a deck yet",
+          '',
+          [
+            {
+              text: 'ok',
+            },
+          ],
+          { cancelable: false }
+        );
+        return;
+      }
+
+      Alert.alert(
+        'Are you sure you want to delete all your decks?',
+        `${deckList.length} decks with a total of ${cardsAmount} cards will be deleted.`,
+        [
+          {
+            text: 'Cancel',
+          },
+          {
+            text: 'OK',
+            onPress: () => {
+              Store.save('deckList', {}).then(() => {
+                navigation.navigate('Home');
+              });
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    });
+  };
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <OptionButton
-        icon="md-trash"
-        label="Clean storage (delete all decks)"
-        onPress={() => WebBrowser.openBrowserAsync('https://docs.expo.io')}
-      />
+      <OptionButton icon="md-trash" label="Clean storage (delete all decks)" onPress={onDelete} />
 
       <OptionButton
         icon="md-alarm"

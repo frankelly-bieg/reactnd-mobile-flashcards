@@ -1,21 +1,36 @@
 import * as React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import Store from '../constants/Store';
+
+const { height } = Dimensions.get('screen');
 
 export default function Home({ navigation }) {
-  const deckList = [
-    { title: 'Desk title', cards: 99 },
-    { title: 'Another card', cards: 5 },
-  ];
+  const [deckList, setDeckList] = React.useState([]);
+
+  React.useEffect(() => {
+    const unSubscribe = navigation.addListener('focus', () => {
+      Store.get('deckList').then((decks) => {
+        const storedDesks = decks || {};
+        setDeckList(Object.entries(storedDesks));
+      });
+    });
+
+    return unSubscribe;
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-        {deckList.map(({ title, cards }) => (
+      <ScrollView
+        style={[styles.container, styles.listContainer]}
+        contentContainerStyle={styles.contentContainer}
+      >
+        {deckList.map(([id, { title, questions }]) => (
           <OptionButton
             key={title}
             label={title}
-            cards={cards}
-            onPress={() => navigation.navigate('Deck', { title })}
+            cards={questions.length}
+            onPress={() => navigation.navigate('Deck', { id, title, questions })}
             isLastOption
           />
         ))}
@@ -53,6 +68,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fafafa',
   },
+  listContainer: {
+    maxHeight: height - 300,
+  },
   actionButton: {
     width: 150,
     paddingTop: 10,
@@ -73,7 +91,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
     borderRadius: 20,
     borderWidth: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     borderColor: '#fff',
   },
   option: {

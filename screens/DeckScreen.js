@@ -1,13 +1,48 @@
 import * as React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import Store from '../constants/Store';
+
+const { height } = Dimensions.get('screen');
 
 export default function Deck({ navigation, route }) {
+  const title = route.params?.title;
+  const cardsAmount = route.params?.questions?.length || 0;
+
+  const onDelete = () => {
+    Alert.alert(
+      'Are you sure you want to delete this deck?',
+      `${cardsAmount} ${cardsAmount === 1 ? 'card' : 'cards'} will be removed`,
+      [
+        {
+          text: 'Cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            Store.get('deckList').then((decks) => {
+              const safeTitle = title.trim().toLowerCase().replace(' ', '-');
+              const deckList = { ...decks };
+
+              delete deckList[safeTitle];
+
+              Store.save('deckList', deckList).then(() => {
+                navigation.navigate('Root');
+              });
+            });
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
   return (
     <View style={styles.container}>
-      <View>
-        <Text>{route.params?.title}</Text>
-        <Text>3 cards</Text>
+      <View style={styles.deckContainer}>
+        <Text style={styles.deckTitle}>{title}</Text>
+        <Text style={styles.deckCards}>{cardsAmount} cards</Text>
+        <TouchableOpacity style={[styles.actionButton, styles.deleteButton]} onPress={onDelete}>
+          <Text style={[styles.buttonText, styles.deleteButtonText]}>Delete deck</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.tabBarInfoContainer}>
         <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
@@ -34,10 +69,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fafafa',
   },
+  deckContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: height * 0.6,
+  },
+  deckTitle: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  deckCards: {
+    fontSize: 22,
+  },
   actionButton: {
     width: 150,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingVertical: 10,
     backgroundColor: 'rgba(0,0,0,0.7)',
     borderRadius: 10,
     borderWidth: 1,
@@ -52,6 +100,14 @@ const styles = StyleSheet.create({
   buttonLight: {
     borderColor: 'rgba(0,0,0,0.7)',
     backgroundColor: 'white',
+  },
+  deleteButtonText: {
+    color: 'white',
+  },
+  deleteButton: {
+    marginTop: 70,
+    backgroundColor: '#f52d2d',
+    paddingVertical: 5,
   },
   buttonLightText: {
     color: 'black',

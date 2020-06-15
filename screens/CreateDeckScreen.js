@@ -1,29 +1,62 @@
 import * as React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { ErrorText } from '../components/StyledText';
+import Store from '../constants/Store';
 
 export default function Deck({ navigation, route }) {
-  const [value, onChangeText] = React.useState('Useless Placeholder');
+  const [title, onChangeText] = React.useState('');
+  const [errorMessage, setError] = React.useState('');
+
+  const goToHome = () => navigation.navigate('Root');
+
+  const onSubmit = () => {
+    if (!title) {
+      setError('This field is required');
+      return;
+    }
+
+    setError('');
+
+    Store.get('deckList').then((decks) => {
+      const storedDesks = decks || {};
+      const safeTitle = title.trim().toLowerCase().replace(' ', '-');
+
+      if (storedDesks[safeTitle]) {
+        setError('This desk already exist');
+        return;
+      }
+
+      Store.update('deckList', {
+        [safeTitle]: {
+          title,
+          questions: [],
+        },
+      }).then(() => {
+        goToHome();
+      });
+    });
+  };
 
   return (
     <View style={styles.container}>
-      <View>
-        <Text>What is the title of your new deck?</Text>
+      <View style={styles.contentContainer}>
+        <Text style={styles.sectionTitle}>What is the title of your new deck?</Text>
         <TextInput
-          style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+          style={{ height: 40, borderColor: 'gray', borderWidth: 1, paddingHorizontal: 5 }}
           onChangeText={(text) => onChangeText(text)}
           maxLength={30}
-          value={value}
+          value={title}
         />
+        {Boolean(errorMessage) && <ErrorText>{errorMessage}</ErrorText>}
       </View>
       <View style={styles.tabBarInfoContainer}>
         <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={onSubmit}>
             <Text style={[styles.buttonText, styles.buttonBiggerText]}>Submit</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.actionButton, styles.buttonLight, styles.lastButton]}
-            onPress={() => navigation.navigate('Root')}
+            onPress={goToHome}
           >
             <Text style={[styles.buttonText, styles.buttonLightText]}>Go back</Text>
           </TouchableOpacity>
@@ -37,6 +70,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fafafa',
+  },
+  sectionTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+    fontFamily: 'Times New Roman',
+  },
+  contentContainer: {
+    paddingHorizontal: 40,
+    paddingTop: 10,
   },
   buttonBiggerText: {
     fontSize: 18,
