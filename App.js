@@ -11,10 +11,17 @@ import CreateDeckScreen from './screens/CreateDeckScreen';
 import CreateCardScreen from './screens/CreateCardScreen';
 import QuizScreen from './screens/QuizScreen';
 
+import { Notifications } from 'expo';
+import * as Permissions from 'expo-permissions';
+
 const Stack = createStackNavigator();
 
 export default function App(props) {
   const isLoadingComplete = useCachedResources();
+
+  React.useEffect(() => {
+    scheduleDailyNotification();
+  }, []);
 
   if (!isLoadingComplete) {
     return null;
@@ -50,3 +57,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 });
+
+async function getiOSNotificationPermission() {
+  const { status } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+  if (status !== 'granted') {
+    await Permissions.askAsync(Permissions.NOTIFICATIONS);
+  }
+}
+
+function scheduleDailyNotification() {
+  getiOSNotificationPermission();
+
+  const nextDay = Date.now() + 3600000 * 24;
+
+  Notifications.scheduleLocalNotificationAsync(
+    {
+      title: 'Hi from Mobile Flashcards!',
+      body: "Don't forget to study today :)",
+      android: {
+        sound: true,
+      },
+      ios: {
+        sound: true,
+      },
+    },
+    { time: nextDay, repeat: 'day' }
+  );
+}

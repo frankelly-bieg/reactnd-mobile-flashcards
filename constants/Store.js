@@ -1,10 +1,10 @@
 /*
   This file is based on:
-  https://github.com/jasonmerino/react-native-simple-store/blob/master/src/index.js
+  https://www.npmjs.com/package/react-native-simple-store
   Author: Jason Merino
 
-  The only difference is that the AsyncStorage is being taken from `react-native` 
-  instead of` @ react-native-community / async-storage`
+  The only difference is that the AsyncStorage is being taken from react-native
+  instead of @react-native-community/async-storage
 */
 
 /**
