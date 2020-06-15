@@ -36,6 +36,23 @@ export default function Deck({ navigation, route }) {
       { cancelable: false }
     );
   };
+
+  const onStartQuiz = () => {
+    if (cardsAmount === 0) {
+      Alert.alert(
+        'Can\'t start the quiz',
+        'This deck has no cards',
+        [
+          {
+            text: 'OK',
+          },
+        ],
+        { cancelable: false }
+      );
+      return;
+    }
+    navigation.navigate('Quiz', { deckID });
+  };
   return (
     <View style={styles.container}>
       <View style={styles.deckContainer}>
@@ -57,7 +74,7 @@ export default function Deck({ navigation, route }) {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.actionButton, styles.lastButton]}
-            onPress={() => navigation.navigate('Quiz')}
+            onPress={onStartQuiz}
           >
             <Text style={styles.buttonText}>Start quiz</Text>
           </TouchableOpacity>
