@@ -5,9 +5,23 @@ import Store from '../constants/Store';
 const { height } = Dimensions.get('screen');
 
 export default function Deck({ navigation, route }) {
-  const title = route.params?.title;
-  const deckID = route.params?.id;
-  const cardsAmount = route.params?.questions?.length || 0;
+  const [data, setData] = React.useState(route.params);
+
+  const title = data?.title;
+  const deckID = data?.id;
+  const cardsAmount = data?.questions?.length || 0;
+
+  React.useEffect(() => {
+    const unSubscribe = navigation.addListener('focus', () => {
+      Store.get('deckList').then((decks) => {
+        const storedDesks = decks || {};
+
+        setData({ id: deckID, ...storedDesks[deckID] });
+      });
+    });
+
+    return unSubscribe;
+  }, [navigation]);
 
   const onDelete = () => {
     Alert.alert(
@@ -40,7 +54,7 @@ export default function Deck({ navigation, route }) {
   const onStartQuiz = () => {
     if (cardsAmount === 0) {
       Alert.alert(
-        'Can\'t start the quiz',
+        "Can't start the quiz",
         'This deck has no cards',
         [
           {
@@ -72,10 +86,7 @@ export default function Deck({ navigation, route }) {
           >
             <Text style={[styles.buttonText, styles.buttonLightText]}>Add card</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.lastButton]}
-            onPress={onStartQuiz}
-          >
+          <TouchableOpacity style={[styles.actionButton, styles.lastButton]} onPress={onStartQuiz}>
             <Text style={styles.buttonText}>Start quiz</Text>
           </TouchableOpacity>
         </View>

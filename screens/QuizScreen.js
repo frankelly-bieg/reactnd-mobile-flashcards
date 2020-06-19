@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
+import { scheduleDailyNotification } from '../constants/Notifications';
 import Store from '../constants/Store';
 
 const { height } = Dimensions.get('screen');
@@ -30,6 +31,9 @@ export default function Quiz({ navigation, route }) {
   };
 
   React.useEffect(() => {
+    // Reschedule the notification when taking a quiz
+    scheduleDailyNotification();
+
     Store.get('deckList').then((decks) => {
       const storedDesks = decks || {};
 

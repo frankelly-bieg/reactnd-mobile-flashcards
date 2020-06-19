@@ -32,7 +32,7 @@ export default function Deck({ navigation, route }) {
           questions: [],
         },
       }).then(() => {
-        goToHome();
+        navigation.navigate('Deck', { id: safeTitle, title, questions: [] })
       });
     });
   };

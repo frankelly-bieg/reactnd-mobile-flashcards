@@ -33,7 +33,7 @@ export default function CreateCard({ navigation, route }) {
           questions: [...storedDesks[deckID].questions, { question, answer }],
         },
       }).then(() => {
-        navigation.navigate('Root');
+        navigation.navigate('Deck');
       });
     });
   };
